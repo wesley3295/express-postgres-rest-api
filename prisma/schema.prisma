@@ -9,8 +9,50 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  email     String   @unique
-  name      String?
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role            @default(USER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  // Relations
+  transactions   Transaction[]
+}
+
+model Transaction {
+  id             Int       @id @default(autoincrement())
+  amount         Decimal   @db.Decimal(12, 2)
+  currency       String    @default("USD")
+  type           TransactionType
+  description    String?
+  status         TransactionStatus @default(PENDING)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Foreign key relation
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERUSER
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  PAYMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELED
 }
